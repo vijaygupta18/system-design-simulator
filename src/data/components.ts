@@ -95,10 +95,10 @@ export const SYSTEM_COMPONENTS: SystemComponent[] = [
     icon: "Database",
     maxQPS: 10000,
     latencyMs: 8,
-    scalable: false,
+    scalable: true,
     stateful: true,
     description:
-      "Relational database providing ACID transactions, strong consistency, and structured schemas with SQL queries. Best for data with complex relationships, joins, and strict integrity requirements (e.g., financial transactions, user accounts). Examples include Amazon RDS (PostgreSQL/MySQL), Google Cloud SQL, and Amazon Aurora.",
+      "Relational database providing ACID transactions, strong consistency, and structured schemas with SQL queries. Best for data with complex relationships, joins, and strict integrity requirements (e.g., financial transactions, user accounts). Examples include Amazon RDS (PostgreSQL/MySQL), Google Cloud SQL, and Amazon Aurora. Can scale reads via replicas.",
   },
   {
     id: "nosql-db",

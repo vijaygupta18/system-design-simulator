@@ -27,20 +27,45 @@ export function scoreLatency(
   const dbNodes = nodes.filter(
     (n) => n.data.componentId === "sql-db" || n.data.componentId === "nosql-db"
   );
+  const appServerNodes = nodes.filter((n) => n.data.componentId === "app-server");
+  
   // Build adjacency for reachability checks
   const adj = new Map<string, string[]>();
-  for (const node of nodes) adj.set(node.id, []);
-  for (const edge of edges) adj.get(edge.source)?.push(edge.target);
+  const reverseAdj = new Map<string, string[]>();
+  for (const node of nodes) {
+    adj.set(node.id, []);
+    reverseAdj.set(node.id, []);
+  }
+  for (const edge of edges) {
+    adj.get(edge.source)?.push(edge.target);
+    reverseAdj.get(edge.target)?.push(edge.source);
+  }
+  
+  const cacheNodeIds = new Set(cacheNodes.map((c) => c.id));
   const dbNodeIds = new Set(dbNodes.map((d) => d.id));
-  // Check: cache is source of an edge AND a DB is reachable within 2 hops from that cache
-  const cacheBeforeDB =
-    cacheNodes.length > 0 &&
-    dbNodes.length > 0 &&
-    cacheNodes.some((c) => {
-      const hop1 = adj.get(c.id) ?? [];
-      if (hop1.some((id) => dbNodeIds.has(id))) return true;
-      return hop1.some((mid) => (adj.get(mid) ?? []).some((id) => dbNodeIds.has(id)));
+  
+  // Check: Either cache-aside (App Server to both Cache+DB) OR read-through (App Server to Cache to DB)
+  const cacheAsidePattern = appServerNodes.some((app) => {
+    const appTargets = adj.get(app.id) ?? [];
+    const connectsToCache = appTargets.some((id) => cacheNodeIds.has(id));
+    const connectsToDB = appTargets.some((id) => dbNodeIds.has(id));
+    return connectsToCache && connectsToDB;
+  });
+  
+  const readThroughPattern = appServerNodes.some((app) => {
+    const appTargets = adj.get(app.id) ?? [];
+    const connectsToCache = appTargets.some((id) => cacheNodeIds.has(id));
+    if (!connectsToCache) return false;
+    
+    // Check if this cache can reach a database
+    return cacheNodes.some((cache) => {
+      if (!appTargets.includes(cache.id)) return false;
+      const cacheTargets = adj.get(cache.id) ?? [];
+      return cacheTargets.some((id) => dbNodeIds.has(id));
     });
+  });
+  
+  const cacheBeforeDB = cacheAsidePattern || readThroughPattern;
   if (cacheBeforeDB) {
     score += 3;
     passed.push("Cache intercepts reads before hitting the database — memory access (~1ms) vs disk (~5-10ms)");
