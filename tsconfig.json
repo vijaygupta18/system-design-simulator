@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-  ],
+, "src/utils/backend/config/model.js"  ],
   "exclude": ["node_modules"]
 }
