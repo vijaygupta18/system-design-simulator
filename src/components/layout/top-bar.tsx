@@ -19,6 +19,7 @@ import {
   StickyNote,
   GraduationCap,
   Plus,
+  Brain,
 } from "lucide-react";
 import { useAppStore } from "@/store/appStore";
 import { useCanvasStore } from "@/store/canvasStore";
@@ -37,9 +38,10 @@ interface TopBarProps {
   onLoad: () => void;
   onStartInterview: () => void;
   onCreateProblem: () => void;
+  onAskAI: () => void;
 }
 
-export function TopBar({ onSimulate, onScore, onClearCanvas, onSave, onLoad, onStartInterview, onCreateProblem }: TopBarProps) {
+export function TopBar({ onSimulate, onScore, onClearCanvas, onSave, onLoad, onStartInterview, onCreateProblem, onAskAI }: TopBarProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const { getViewport } = useReactFlow();
@@ -394,6 +396,15 @@ export function TopBar({ onSimulate, onScore, onClearCanvas, onSave, onLoad, onS
         >
           <Play className="h-3 w-3" />
           Simulate
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={onAskAI}
+          className="h-7 gap-1.5 border border-violet-700/50 bg-violet-500/10 px-3 text-xs font-medium text-violet-300 hover:bg-violet-500/20 hover:text-violet-200"
+        >
+          <Brain className="h-3 w-3" />
+          Ask AI
         </Button>
         <Button
           size="sm"

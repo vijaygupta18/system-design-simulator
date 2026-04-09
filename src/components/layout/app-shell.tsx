@@ -17,6 +17,7 @@ import { LoadDialog } from "@/components/dialogs/LoadDialog";
 import { InterviewBar } from "@/components/interview/InterviewBar";
 import { InterviewStartDialog } from "@/components/interview/InterviewStartDialog";
 import { CreateProblemDialog } from "@/components/dialogs/CreateProblemDialog";
+import { AiFeedbackDialog } from "@/components/dialogs/AiFeedbackDialog";
 import { useInterviewStore } from "@/store/interviewStore";
 
 export function AppShell() {
@@ -26,6 +27,7 @@ export function AppShell() {
   const [loadDialogOpen, setLoadDialogOpen] = useState(false);
   const [interviewDialogOpen, setInterviewDialogOpen] = useState(false);
   const [createProblemDialogOpen, setCreateProblemDialogOpen] = useState(false);
+  const [aiFeedbackOpen, setAiFeedbackOpen] = useState(false);
   const interviewMode = useInterviewStore((s) => s.mode);
   const timerRunning = useInterviewStore((s) => s.timerRunning);
   const tickTimer = useInterviewStore((s) => s.tickTimer);
@@ -156,7 +158,7 @@ export function AppShell() {
     <ReactFlowProvider>
       <div className="flex h-full flex-col">
         {interviewMode === "interview" && <InterviewBar />}
-        <TopBar onSimulate={handleSimulate} onScore={handleScore} onClearCanvas={handleClearCanvas} onSave={handleSave} onLoad={handleLoad} onStartInterview={() => setInterviewDialogOpen(true)} onCreateProblem={() => setCreateProblemDialogOpen(true)} />
+        <TopBar onSimulate={handleSimulate} onScore={handleScore} onClearCanvas={handleClearCanvas} onSave={handleSave} onLoad={handleLoad} onStartInterview={() => setInterviewDialogOpen(true)} onCreateProblem={() => setCreateProblemDialogOpen(true)} onAskAI={() => setAiFeedbackOpen(true)} />
 
         <div className="flex flex-1 overflow-hidden">
           <Sidebar open={leftSidebarOpen} onCreateProblem={() => setCreateProblemDialogOpen(true)} />
@@ -170,6 +172,7 @@ export function AppShell() {
         <LoadDialog open={loadDialogOpen} onClose={() => setLoadDialogOpen(false)} />
         <InterviewStartDialog open={interviewDialogOpen} onClose={() => setInterviewDialogOpen(false)} />
         <CreateProblemDialog open={createProblemDialogOpen} onClose={() => setCreateProblemDialogOpen(false)} />
+        <AiFeedbackDialog open={aiFeedbackOpen} onClose={() => setAiFeedbackOpen(false)} />
       </div>
     </ReactFlowProvider>
   );

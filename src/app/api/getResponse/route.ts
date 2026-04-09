@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getClient } from "@/utils/backend/config/chat";
 import { modelName } from "@/utils/backend/config/model";
-import { system } from "@/config/prompts/chatPrompt.json";
+import { system, format } from "@/config/prompts/chatPrompt.json";
+
 const client = getClient();
 
 export async function POST(req: NextRequest) {
@@ -20,13 +21,13 @@ export async function POST(req: NextRequest) {
       and ${key} has properties ${JSON.stringify(message.edgesInfo[key].props)}\n`;
     }
     // console.log(nodesInfo)
-    const finalMsg = system + "\n\n" + nodesInfo
+    const finalMsg = system + "\n\n" + format + "\n\n" + nodesInfo
     const apiResponse = await client.chat.completions.create({
       model: modelName,
-      messages: [{ role: "user", content: finalMsg }],
+      messages: [{ role: "system", content: finalMsg }],
       stream: false,
     });
-    console.log("res is ", apiResponse.choices[0]?.message?.content);
+    console.log("res is ", JSON.parse(apiResponse.choices[0]?.message?.content || "{}"));
     return NextResponse.json({ 
       response: apiResponse.choices[0]?.message?.content 
     });

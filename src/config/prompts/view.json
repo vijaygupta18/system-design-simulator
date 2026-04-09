@@ -1,0 +1,88 @@
+{
+    "bottleNecks": [
+        "dns",
+        "app-server",
+        "cache",
+        "rate-limiter",
+        "message-queue"
+    ],
+    "recommendations": {
+        "dns": {
+            "action": "Increase replicas to 3 and enable geo‑distributed DNS caching",
+            "reason": "Utilization is 200% with critical status, causing high latency for name resolution"
+        },
+        "app-server": {
+            "action": "Add 30 more stateless app server instances and enable auto‑scaling based on CPU/QPS",
+            "reason": "Current utilization is at capacity (100%) and status is critical, leading to request queuing"
+        },
+        "cache": {
+            "action": "Cluster Redis (sharding) into 3 nodes with read replicas",
+            "reason": "Cache utilization 200% and critical status create cache misses and increased DB load"
+        },
+        "rate-limiter": {
+            "action": "Scale rate‑limiter to 3 replicas and partition limits per user segment",
+            "reason": "Utilization 125% indicates throttling bottleneck, risking denial of service"
+        },
+        "message-queue": {
+            "action": "Deploy a multi‑node queue cluster (e.g., Kafka) with replication factor 3",
+            "reason": "Queue utilization at 100% and critical status may cause message loss or back‑pressure"
+        }
+    },
+    "architectureChanges": [
+        "Introduce a CDN edge cache before DNS to offload static asset requests",
+        "Add a dedicated read‑replica layer for NoSQL DB to serve read‑heavy URL lookups",
+        "Move heavy write operations to an asynchronous worker pool via the message queue",
+        "Implement circuit breaker between API Gateway and App Server to isolate failures",
+        "Enable global load balancer with geo‑routing to route users to nearest DNS/Cache cluster"
+    ],
+    "updatedDiagramHints": {
+        "connections": [
+            {
+                "from": "dns",
+                "to": "cdn",
+                "reason": "Place CDN in front of DNS to serve static redirects and reduce DNS query load"
+            },
+            {
+                "from": "cdn",
+                "to": "load-balancer",
+                "reason": "Direct traffic from CDN to LB for efficient request distribution"
+            },
+            {
+                "from": "load-balancer",
+                "to": "api-gateway",
+                "reason": "Standard entry point; ensure LB health checks include new DNS replicas"
+            },
+            {
+                "from": "api-gateway",
+                "to": "rate-limiter",
+                "reason": "Rate limiter should be upstream to protect downstream services"
+            },
+            {
+                "from": "rate-limiter",
+                "to": "app-server",
+                "reason": "Scale rate limiter to prevent it becoming a choke point"
+            },
+            {
+                "from": "app-server",
+                "to": "cache",
+                "reason": "Clustered Redis will distribute cache load and reduce hot‑spot"
+            },
+            {
+                "from": "app-server",
+                "to": "nosql-db",
+                "reason": "Add read‑replica DB nodes for URL lookup queries"
+            },
+            {
+                "from": "app-server",
+                "to": "message-queue",
+                "reason": "Queue cluster ensures reliable async processing of analytics and logging"
+            },
+            {
+                "from": "message-queue",
+                "to": "monitoring",
+                "reason": "Export queue metrics to monitoring for proactive scaling"
+            }
+        ]
+    },
+    "summary": "The current design shows five critical bottlenecks: DNS, App Server, Cache, Rate Limiter, and Message Queue. Scaling out these components, clustering the cache, and moving to a multi‑node queue will immediately relieve pressure. Adding a CDN edge cache, read‑replica DB, and global load balancer improves latency and resilience. Updating the diagram with the suggested connections will make the data flow clearer and help future capacity planning."
+}
