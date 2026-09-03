@@ -268,6 +268,22 @@ npm run dev
 
 Open **http://localhost:3000** — that's it. Everything runs client-side; your designs are saved to `localStorage`.
 
+### 🐳 Run with Docker
+
+> **Prerequisites:** [Docker](https://docs.docker.com/get-docker/) installed and running.
+
+```bash
+# Build the image
+docker build -t system-forge .
+
+# Run the container
+docker run -d -p 3000:3000 --name system-forge system-forge
+```
+
+Open **http://localhost:3000** — the same app, fully containerized. Stop with `docker stop system-forge` and start again with `docker start system-forge`.
+
+**Why Docker?** No Node.js setup needed. No `npm install`. One command and you're running — ideal for quick previews, CI/CD pipelines, or deploying on a headless server.
+
 ### Keyboard Shortcuts
 
 | Shortcut | Action | | Shortcut | Action |
